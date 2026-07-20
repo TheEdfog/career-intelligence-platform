@@ -148,7 +148,7 @@ apps/
   web/                  # routes, services, templates, static assets
 config/                 # safe development defaults
 core/                   # configuration, security, shared utilities
-docs/                   # diagrams and Postman smoke collection
+docs/                   # architecture diagrams
 storage/                # runtime data; contents are ignored
 tests/                  # unit and web-layer tests
 .github/workflows/      # automated quality gate
