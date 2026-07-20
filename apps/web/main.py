@@ -7,7 +7,6 @@ from fastapi.responses import RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 
-from apps.api.db.database import init_db
 from apps.web.routes import auth, dashboard, results, vacancies
 from apps.web.routes import profiles_dynamic as profiles
 from core.config import settings
@@ -16,7 +15,6 @@ from core.config import settings
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     settings.ensure_runtime_directories()
-    init_db()
     yield
 
 

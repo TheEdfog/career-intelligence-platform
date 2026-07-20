@@ -7,6 +7,7 @@ debug = false
 
 [security]
 secret_key = "development-only-change-me"
+cookie_secure = false
 session_cookie_name = "career_intelligence_session"
 jwt_algorithm = "HS256"
 access_token_expire_minutes = 1440

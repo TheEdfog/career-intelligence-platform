@@ -31,8 +31,7 @@ class _DummyDb:
 
 
 @pytest.fixture
-def app(monkeypatch):
-    monkeypatch.setattr("apps.web.main.init_db", lambda: None)
+def app():
     application = create_app()
 
     def _fake_db():

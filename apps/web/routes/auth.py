@@ -41,7 +41,7 @@ def _set_auth_cookie(response: RedirectResponse, token: str) -> None:
         value=token,
         httponly=True,
         samesite="lax",
-        secure=False,
+        secure=settings.cookie_secure,
         max_age=settings.access_token_expire_minutes * 60,
     )
 
@@ -89,7 +89,7 @@ async def login_submit(
     try:
         data = LoginRequest(email=email, password=password)
         user = authenticate_user(db=db, email=data.email, password=data.password)
-    except Exception as exc:
+    except (AuthError, ValidationError) as exc:
         return request.app.state.templates.TemplateResponse(
             request=request,
             name="auth/login.html",
@@ -131,7 +131,7 @@ async def register_submit(
     try:
         data = RegisterRequest(email=email, password=password)
         user = register_user(db=db, email=data.email, password=data.password)
-    except Exception as exc:
+    except (AuthError, ValidationError) as exc:
         return request.app.state.templates.TemplateResponse(
             request=request,
             name="auth/register.html",
@@ -154,5 +154,10 @@ async def logout():
         url=f"/login?message={quote('Вы вышли из системы')}&message_type=warning",
         status_code=status.HTTP_302_FOUND,
     )
-    response.delete_cookie(settings.session_cookie_name)
+    response.delete_cookie(
+        settings.session_cookie_name,
+        httponly=True,
+        samesite="lax",
+        secure=settings.cookie_secure,
+    )
     return response

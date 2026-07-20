@@ -4,7 +4,7 @@ import tomllib
 from functools import lru_cache
 from pathlib import Path
 
-from pydantic import field_validator
+from pydantic import field_validator, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -35,6 +35,7 @@ class Settings(BaseSettings):
     debug: bool = _cfg("app", "debug", False)
 
     secret_key: str = _cfg("security", "secret_key", "development-only-change-me")
+    cookie_secure: bool = _cfg("security", "cookie_secure", False)
     session_cookie_name: str = _cfg("security", "session_cookie_name", "career_intelligence_session")
     jwt_algorithm: str = _cfg("security", "jwt_algorithm", "HS256")
     access_token_expire_minutes: int = _cfg("security", "access_token_expire_minutes", 1440)
@@ -84,6 +85,15 @@ class Settings(BaseSettings):
         if normalized not in allowed:
             raise ValueError(f"LATEX_ENGINE должен быть одним из: {', '.join(sorted(allowed))}")
         return normalized
+
+    @model_validator(mode="after")
+    def validate_production_security(self) -> Settings:
+        if self.app_env.lower() not in {"development", "test"}:
+            if self.secret_key in {"development-only-change-me", "replace-with-a-random-secret"}:
+                raise ValueError("SECRET_KEY must be replaced outside development")
+            if not self.cookie_secure:
+                raise ValueError("COOKIE_SECURE must be enabled outside development")
+        return self
 
     @property
     def project_root(self) -> Path:

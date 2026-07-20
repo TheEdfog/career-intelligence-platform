@@ -10,6 +10,12 @@ RUN python -m pip install --no-cache-dir -r requirements.txt
 
 COPY . .
 
+RUN useradd --create-home --uid 10001 appuser \
+    && mkdir -p /app/storage \
+    && chown -R appuser:appuser /app
+
+USER appuser
+
 EXPOSE 8000
 
-CMD ["python", "-m", "uvicorn", "apps.web.main:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["sh", "-c", "alembic upgrade head && exec python -m uvicorn apps.web.main:app --host 0.0.0.0 --port 8000"]

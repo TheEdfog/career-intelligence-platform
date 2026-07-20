@@ -56,7 +56,7 @@ python -m pip install -r requirements-dev.txt
 python -m uvicorn apps.web.main:app --reload
 ```
 
-Copy `.env.example` to `.env` and set `DATABASE_URL` for the local PostgreSQL instance before starting the application.
+Copy `.env.example` to `.env`, set `DATABASE_URL` for the local PostgreSQL instance and run `alembic upgrade head` before starting the application.
 
 ## Checks
 
@@ -87,6 +87,7 @@ tests/          unit and web-layer tests
 - The score helps organize evidence; it is not a hiring decision.
 - Related-skill mappings are explicit heuristics and need calibration for a particular role.
 - Generated text should be reviewed before it is sent.
+- The HTML forms do not yet include CSRF tokens, so the included server is a local case study rather than an internet-facing deployment.
 - A production deployment would also need managed secrets, HTTPS, rate limiting and a background queue for expensive jobs.
 
 Licensed under GPL-3.0. See [LICENSE](LICENSE).
