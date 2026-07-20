@@ -1,0 +1,42 @@
+name: career-intelligence-platform
+
+services:
+  app:
+    build: .
+    environment:
+      APP_ENV: ${APP_ENV:-development}
+      DEBUG: ${DEBUG:-false}
+      SECRET_KEY: ${SECRET_KEY:-development-only-change-me}
+      DATABASE_URL: postgresql+psycopg://${POSTGRES_USER:-career}:${POSTGRES_PASSWORD:-career_dev_password}@postgres:5432/${POSTGRES_DB:-career_intelligence}
+      DEEPSEEK_API_KEY: ${DEEPSEEK_API_KEY:-}
+      LLM_MODEL: ${LLM_MODEL:-deepseek-chat}
+    ports:
+      - "${APP_PORT:-8000}:8000"
+    volumes:
+      - career_storage:/app/storage
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health')"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-career_intelligence}
+      POSTGRES_USER: ${POSTGRES_USER:-career}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-career_dev_password}
+    volumes:
+      - career_postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  career_postgres_data:
+  career_storage:
