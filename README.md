@@ -1,64 +1,65 @@
-# Career Intelligence Platform
+# Анализ соответствия вакансии
 
-This FastAPI application compares a candidate profile with a vacancy. It extracts requirements, shows the evidence behind the match score and prepares a vacancy-specific resume and cover letter.
+FastAPI-приложение сравнивает профиль кандидата с вакансией: извлекает требования, показывает evidence для рассчитанного match score и готовит адаптированные резюме и сопроводительное письмо.
 
-I originally built the idea as an academic project. This repository is the version I maintain: the application is packaged, tested and runnable without an external AI service.
+Идея появилась как учебный проект. Текущая версия упакована, покрыта тестами и работает без внешнего AI-сервиса.
 
-## Main flow
+## Основной сценарий
 
 ```text
-candidate profile + vacancy text
-              |
-              v
-     normalized requirements
-              |
-              v
- evidence-based matching and skill gaps
-              |
-              v
- tailored resume and cover letter
+профиль кандидата + текст вакансии
+                 |
+                 v
+      нормализованные требования
+                 |
+                 v
+     evidence-based match и пробелы
+                 |
+                 v
+       резюме и сопроводительное письмо
 ```
 
-Profiles, skills, vacancies, normalized requirements and generated documents are stored separately in PostgreSQL. This makes it possible to analyze several vacancies without copying the candidate profile.
+Профили, навыки, вакансии, нормализованные требования и созданные документы хранятся в PostgreSQL отдельно. Один профиль можно анализировать против нескольких вакансий без дублирования исходных данных.
 
-The deterministic path handles parsing, matching and document generation locally. A DeepSeek-compatible API can be enabled for writing and parsing assistance, but it is not required.
+Детерминированный сценарий локально выполняет parsing, matching и подготовку документов. DeepSeek-совместимый API можно подключить для дополнительной помощи с текстом и разбором вакансии, но основная логика от него не зависит.
 
-## Match score
+## Расчёт соответствия
 
-Each requirement receives an evidence score from exact skills, related skills and mentions in the profile. Mandatory requirements carry more weight in the final result:
+Каждое требование получает оценку на основе точных навыков, связанных навыков и подтверждений в профиле. Обязательные требования имеют больший вес:
 
 ```text
 total_match = 0.75 * must_have_match + 0.25 * nice_to_have_match
 ```
 
-The interface shows the supporting evidence rather than only displaying a percentage.
+Интерфейс показывает найденные подтверждения, а не только итоговый процент.
 
-## Stack
+## Стек
 
-Python 3.12, FastAPI, Jinja2, PostgreSQL 16, SQLAlchemy 2, Alembic, Pydantic, Pytest, Ruff, Docker Compose and GitHub Actions.
+Python 3.12, FastAPI, Jinja2, PostgreSQL 16, SQLAlchemy 2, Alembic, Pydantic, Pytest, Ruff, Docker Compose и GitHub Actions.
 
-## Run with Docker
+## Запуск через Docker
 
 ```bash
 cp .env.example .env
 docker compose up --build
 ```
 
-Open <http://localhost:8000>. No LLM key is needed for the main workflow. For anything beyond local development, change `SECRET_KEY` and `POSTGRES_PASSWORD` in `.env`.
+Приложение доступно на <http://localhost:8000>. Для основного сценария LLM key не нужен. За пределами локального запуска необходимо заменить `SECRET_KEY` и `POSTGRES_PASSWORD` в `.env`.
 
-Stop the stack with `docker compose down`. Add `-v` only if you also want to remove the local database and generated documents.
+Остановить стенд: `docker compose down`. Флаг `-v` следует добавлять только при намеренном удалении локальной БД и созданных документов.
 
-## Run locally
+## Локальный запуск
 
 ```bash
 python -m venv .venv
 python -m pip install -r requirements-dev.txt
+alembic upgrade head
 python -m uvicorn apps.web.main:app --reload
 ```
 
-Copy `.env.example` to `.env`, set `DATABASE_URL` for the local PostgreSQL instance and run `alembic upgrade head` before starting the application.
+Предварительно скопируйте `.env.example` в `.env` и задайте `DATABASE_URL` для локального PostgreSQL.
 
-## Checks
+## Проверки
 
 ```bash
 ruff check .
@@ -68,26 +69,26 @@ python -m compileall apps core
 docker compose config -q
 ```
 
-The tests cover routes, authentication boundaries, vacancy parsing, matching, recommendations, profile handling, HH integration boundaries and document fallbacks. Network and LLM calls are replaced with controlled test doubles.
+Тесты покрывают routes, границы аутентификации, parsing вакансий, matching, рекомендации, профили, интеграцию с hh.ru и fallback-сценарии создания документов. Сетевые и LLM-вызовы заменяются контролируемыми test doubles.
 
-## Repository layout
+## Структура
 
 ```text
-apps/api/       database models, schemas and repositories
-apps/web/       routes, services, templates and static files
-config/         safe development defaults
-core/           configuration, security and shared utilities
-docs/           architecture diagrams
-storage/        ignored runtime data
-tests/          unit and web-layer tests
+apps/api/       модели БД, схемы и repositories
+apps/web/       routes, сервисы, templates и static
+config/         безопасные настройки локальной разработки
+core/           конфигурация, security и общие утилиты
+docs/           архитектурные диаграммы
+storage/        игнорируемые runtime-данные
+tests/          unit- и web-тесты
 ```
 
-## Limits
+## Ограничения
 
-- The score helps organize evidence; it is not a hiring decision.
-- Related-skill mappings are explicit heuristics and need calibration for a particular role.
-- Generated text should be reviewed before it is sent.
-- The HTML forms do not yet include CSRF tokens, so the included server is a local case study rather than an internet-facing deployment.
-- A production deployment would also need managed secrets, HTTPS, rate limiting and a background queue for expensive jobs.
+- Score помогает систематизировать подтверждения, но не является решением о найме.
+- Карта связанных навыков построена на явных эвристиках и требует калибровки под конкретную роль.
+- Созданный текст необходимо проверить перед отправкой.
+- В HTML-формах пока нет CSRF-токенов, поэтому сервер предназначен для локального case study, а не для публикации в интернете.
+- Для production также потребуются managed secrets, HTTPS, rate limiting и фоновая очередь для тяжёлых задач.
 
-Licensed under GPL-3.0. See [LICENSE](LICENSE).
+Лицензия GPL-3.0: [LICENSE](LICENSE).
