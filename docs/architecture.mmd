@@ -1,0 +1,18 @@
+sequenceDiagram
+    actor User as Пользователь
+    participant Web as FastAPI
+    participant Core as Сервисы анализа
+    participant DB as PostgreSQL
+    participant LLM as LLM (опционально)
+
+    User->>Web: Профиль и вакансия
+    Web->>Core: Разобрать требования
+    opt Дополнительный разбор текста
+        Core->>LLM: Текст вакансии
+        LLM-->>Core: Структурированные требования
+    end
+    Core->>DB: Сохранить вакансию и требования
+    Core->>Core: Рассчитать score и evidence
+    Core->>DB: Сохранить результат
+    Core-->>Web: Score, пробелы и рекомендации
+    Web-->>User: Результат и документы
