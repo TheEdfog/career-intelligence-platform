@@ -767,7 +767,7 @@ def _last_marker_index(text: str, markers: tuple[str, ...]) -> int:
 
 
 def _context_start_before(text: str, position: int) -> int:
-    boundaries = ("\n", "\r", ";", "•")
+    boundaries = ("\n", "\r", ";", "\u2022")
     return max(text.rfind(boundary, 0, position) for boundary in boundaries) + 1
 
 

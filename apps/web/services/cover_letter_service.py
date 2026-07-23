@@ -25,7 +25,7 @@ def _split_lines(value: str | None, *, limit: int | None = None) -> list[str]:
 
     result: list[str] = []
     for raw_line in value.replace("\r", "\n").split("\n"):
-        line = raw_line.strip().strip("-•*").strip()
+        line = raw_line.strip().strip("-\u2022*").strip()
         if line:
             result.append(line)
         if limit is not None and len(result) >= limit:

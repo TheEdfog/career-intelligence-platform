@@ -164,9 +164,9 @@ def _format_period(value: Any) -> str:
     if not text:
         return ""
 
-    parts = re.split(r"\s+(?:-|—|–)\s+", text, maxsplit=1)
+    parts = re.split(r"\s+(?:-|\u2014|\u2013)\s+", text, maxsplit=1)
     if len(parts) == 2:
-        return f"{_format_month_year(parts[0])} – {_format_month_year(parts[1])}"
+        return f"{_format_month_year(parts[0])} - {_format_month_year(parts[1])}"
 
     return _format_month_year(text)
 

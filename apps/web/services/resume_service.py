@@ -29,7 +29,7 @@ def _split_lines(value: str | None, *, limit: int | None = None) -> list[str]:
 
     result: list[str] = []
     for raw_line in value.replace("\r", "\n").split("\n"):
-        line = raw_line.strip().strip("-•*").strip()
+        line = raw_line.strip().strip("-\u2022*").strip()
         if line:
             result.append(line)
         if limit is not None and len(result) >= limit:
@@ -103,7 +103,7 @@ def _education_items(profile: Profile) -> list[str]:
         period = _period_from_entry(entry)
         title = ", ".join(str(part).strip() for part in [entry.get("program"), entry.get("org")] if part)
         details = entry.get("details")
-        text = " — ".join(str(part).strip() for part in [title, period, details] if part)
+        text = " - ".join(str(part).strip() for part in [title, period, details] if part)
         if text:
             result.append(text)
     return result or _split_lines(getattr(profile, "education_text", None), limit=6)
@@ -115,8 +115,8 @@ def _course_items(profile: Profile) -> list[str]:
         if not isinstance(entry, dict):
             continue
         title = ", ".join(str(part).strip() for part in [entry.get("name"), entry.get("provider")] if part)
-        details = " — ".join(str(part).strip() for part in [entry.get("year"), entry.get("details")] if part)
-        text = " — ".join(part for part in [title, details] if part)
+        details = " - ".join(str(part).strip() for part in [entry.get("year"), entry.get("details")] if part)
+        text = " - ".join(part for part in [title, details] if part)
         if text:
             result.append(text)
     return result or _split_lines(getattr(profile, "certificates_text", None), limit=8)
@@ -128,8 +128,8 @@ def _additional_items(profile: Profile) -> list[str]:
         if not isinstance(entry, dict):
             continue
         title = ", ".join(str(part).strip() for part in [entry.get("name"), entry.get("type")] if part)
-        details = " — ".join(str(part).strip() for part in [entry.get("year"), entry.get("result")] if part)
-        text = " — ".join(part for part in [title, details] if part)
+        details = " - ".join(str(part).strip() for part in [entry.get("year"), entry.get("result")] if part)
+        text = " - ".join(part for part in [title, details] if part)
         if text:
             result.append(text)
     return result
